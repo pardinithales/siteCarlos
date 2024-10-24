@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Agendamentos</title>
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PapaParse para análise de CSV -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dashboard de Agendamentos</h1>
+            <div>
+                <button id="addButton" class="btn-add"><i class="fas fa-plus"></i> Adicionar Registro</button>
+                <!-- Botão para carregar CSV -->
+                <label for="csvInput" class="btn-add" style="margin-left: 10px; cursor: pointer;">
+                    <i class="fas fa-file-csv"></i> Carregar CSV
+                </label>
+                <input type="file" id="csvInput" accept=".csv" style="display: none;">
+            </div>
+        </header>
+
+        <!-- Filtros -->
+        <section class="filters">
+            <input type="text" id="searchInput" placeholder="Buscar funcionário...">
+            <select id="monthFilter">
+                <option value="all">Todos os meses</option>
+                <option value="set/24">set/24</option>
+                <option value="out/24">out/24</option>
+                <option value="nov/24">nov/24</option>
+                <option value="dez/24">dez/24</option>
+                <option value="jan/25">jan/25</option>
+                <option value="fev/25">fev/25</option>
+                <option value="mar/25">mar/25</option>
+                <option value="abr/25">abr/25</option>
+                <option value="mai/25">mai/25</option>
+                <option value="jun/25">jun/25</option>
+                <option value="jul/25">jul/25</option>
+                <option value="ago/25">ago/25</option>
+            </select>
+            <select id="codeFilter">
+                <option value="all">Todos os códigos</option>
+                <option value="F">F</option>
+                <option value="M">M</option>
+                <option value="D">D</option>
+            </select>
+        </section>
+
+        <!-- Estatísticas -->
+        <section class="stats">
+            <div class="stat-card">
+                <h3>Total de Registros</h3>
+                <p id="totalRecords">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Funcionários Únicos</h3>
+                <p id="uniqueEmployees">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Meses Ativos</h3>
+                <p id="activeMonths">0</p>
+            </div>
+        </section>
+
+        <!-- Gráficos -->
+        <section class="charts">
+            <div class="chart-container">
+                <h3>Distribuição por Código</h3>
+                <canvas id="codeChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Distribuição por Mês</h3>
+                <canvas id="monthChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Tabela de Dados -->
+        <section class="data-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Funcionário</th>
+                        <th>Mês</th>
+                        <th>Código</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Linhas serão inseridas aqui via JavaScript -->
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <!-- Modal para Adicionar/Editar Registro -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span id="closeModal" class="close">&times;</span>
+            <h2 id="modalTitle">Adicionar Registro</h2>
+            <form id="recordForm">
+                <label for="funcionario">Funcionário:</label>
+                <input type="text" id="funcionario" name="funcionario" required>
+
+                <label for="mes">Mês:</label>
+                <select id="mes" name="mes" required>
+                    <option value="set/24">set/24</option>
+                    <option value="out/24">out/24</option>
+                    <option value="nov/24">nov/24</option>
+                    <option value="dez/24">dez/24</option>
+                    <option value="jan/25">jan/25</option>
+                    <option value="fev/25">fev/25</option>
+                    <option value="mar/25">mar/25</option>
+                    <option value="abr/25">abr/25</option>
+                    <option value="mai/25">mai/25</option>
+                    <option value="jun/25">jun/25</option>
+                    <option value="jul/25">jul/25</option>
+                    <option value="ago/25">ago/25</option>
+                </select>
+
+                <label for="codigo">Código:</label>
+                <select id="codigo" name="codigo" required>
+                    <option value="F">F</option>
+                    <option value="M">M</option>
+                    <option value="D">D</option>
+                </select>
+
+                <button type="submit" class="btn-submit">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Personalizado -->
+    <script src="script.js"></script>
+</body>
+</html>
