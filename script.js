@@ -44,7 +44,7 @@ function initializeDataFromCSV(file) {
     });
 }
 
-// Carregar CSV ao selecionar o arquivo
+// Carregar CSV ao selecionar o arquivo (opcional)
 csvInput.addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (file && file.type === 'text/csv') {
@@ -54,7 +54,7 @@ csvInput.addEventListener('change', function(event) {
     }
 });
 
-// Salvar Dados no localStorage
+// Salvar Dados no localStorage (opcional, caso queira persistir)
 function saveData() {
     localStorage.setItem('dashboardData', JSON.stringify(data));
 }
@@ -306,71 +306,39 @@ function updateCharts() {
         }
     });
 }
-// Gráficos
-function updateCharts() {
-    const filtered = getFilteredData();
 
-    // Distribuição por Código
-    const codeCounts = filtered.reduce((acc, item) => {
-        acc[item.codigo] = (acc[item.codigo] || 0) + 1;
-        return acc;
-    }, {});
-
-    const codeLabels = Object.keys(codeCounts);
-    const codeData = Object.values(codeCounts);
-
-    if (codeChart) {
-        codeChart.destroy();
-    }
-
-    const ctxCode = document.getElementById('codeChart').getContext('2d');
-    codeChart = new Chart(ctxCode, {
-        type: 'bar',
-        data: {
-            labels: codeLabels,
-            datasets: [{
-                label: 'Quantidade',
-                data: codeData,
-                backgroundColor: '#4f46e5',
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-        }
-    });
-
-    // Distribuição por Mês
-    const monthCounts = filtered.reduce((acc, item) => {
-        acc[item.mes] = (acc[item.mes] || 0) + 1;
-        return acc;
-    }, {});
-
-    const monthLabels = Object.keys(monthCounts);
-    const monthData = Object.values(monthCounts);
-
-    if (monthChart) {
-        monthChart.destroy();
-    }
-
-    const ctxMonth = document.getElementById('monthChart').getContext('2d');
-    monthChart = new Chart(ctxMonth, {
-        type: 'bar',
-        data: {
-            labels: monthLabels,
-            datasets: [{
-                label: 'Quantidade',
-                data: monthData,
-                backgroundColor: '#4f46e5',
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-        }
-    });
+// Função para Carregar o CSV Automaticamente
+function loadCSVAutomatically() {
+    fetch('data.csv')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Falha ao carregar o arquivo CSV');
+            }
+            return response.text();
+        })
+        .then(csvText => {
+            Papa.parse(csvText, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    data = results.data.map(item => ({
+                        funcionario: item.funcionario.trim(),
+                        mes: item.mes.trim(),
+                        codigo: item.codigo.trim().toUpperCase()
+                    }));
+                    saveData();
+                    renderTable();
+                },
+                error: function(error) {
+                    alert('Erro ao analisar o CSV: ' + error.message);
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Erro ao buscar o CSV:', error);
+            alert('Erro ao carregar o arquivo CSV. Verifique o console para mais detalhes.');
+        });
 }
-
 
 // Inicializar Aplicação
 function init() {
@@ -380,36 +348,8 @@ function init() {
         data = JSON.parse(storedData);
         renderTable();
     } else {
-        // Se não houver dados no localStorage, tentar carregar do CSV
-        // Opcional: Carregar dados do arquivo CSV automaticamente
-        // Nota: Devido a restrições de CORS, isso pode não funcionar ao abrir o arquivo via file://
-        // Para contornar, considere servir o projeto via um servidor local simples
-        /*
-        fetch('data.csv')
-            .then(response => response.text())
-            .then(csvText => {
-                Papa.parse(csvText, {
-                    header: true,
-                    skipEmptyLines: true,
-                    complete: function(results) {
-                        data = results.data.map(item => ({
-                            funcionario: item.funcionario.trim(),
-                            mes: item.mes.trim(),
-                            codigo: item.codigo.trim().toUpperCase()
-                        }));
-                        saveData();
-                        renderTable();
-                    },
-                    error: function(error) {
-                        alert('Erro ao carregar o CSV: ' + error.message);
-                    }
-                });
-            })
-            .catch(error => {
-                console.error('Erro ao buscar o CSV:', error);
-            });
-        */
-        // Para facilitar, você pode instruir os usuários a carregar manualmente o CSV usando o botão
+        // Carregar dados do arquivo CSV automaticamente
+        loadCSVAutomatically();
     }
 }
 
