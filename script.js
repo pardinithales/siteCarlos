@@ -406,6 +406,14 @@ recordForm.addEventListener('submit', (e) => {
         return;
     }
 
+    // Verificar sobreposição de férias
+    if (codigo === 'F') { // Supondo que 'F' representa férias
+        if (hasOverlap(funcionario, dataInicio, dataFim, isEditing ? editingIndex : null)) {
+            showMessage('O período de férias se sobrepõe a outro já existente para este funcionário.', 'error');
+            return;
+        }
+    }
+
     if (isEditing && editingIndex !== null) {
         // Editar Registro
         data[editingIndex] = { funcionario, codigo, dataInicio, dataFim };
