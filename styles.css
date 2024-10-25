@@ -129,6 +129,27 @@ header h1 {
     position: relative;
 }
 
+/* Cores para cada Código */
+.codigo-badge[F] {
+    background-color: #EDE9FE;
+    color: #6B21A8;
+}
+
+.codigo-badge[M] {
+    background-color: #DCFCE7;
+    color: #059669;
+}
+
+.codigo-badge[D] {
+    background-color: #FEF3C7;
+    color: #D97706;
+}
+
+.codigo-badge[ME] {
+    background-color: #FFE2E2; /* Rosa Claro */
+    color: #B91C1C; /* Vermelho Escuro */
+}
+
 /* Estatísticas */
 .stats {
     display: flex;
