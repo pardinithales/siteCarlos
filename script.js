@@ -75,6 +75,91 @@ function saveData() {
     localStorage.setItem('dashboardData', JSON.stringify(data));
 }
 
+// Selecionar os novos botões de exportação
+const exportPdfButton = document.getElementById('exportPdfButton');
+const exportExcelButton = document.getElementById('exportExcelButton');
+
+// Função para Exportar para PDF
+function exportToPDF() {
+    // Criar uma nova instância do jsPDF
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Adicionar título
+    doc.setFontSize(18);
+    doc.text('Relatório de Agendamentos', 14, 22);
+
+    // Adicionar Data de Geração
+    doc.setFontSize(11);
+    doc.text(`Gerado em: ${new Date().toLocaleDateString()}`, 14, 30);
+
+    // Preparar os dados para a tabela
+    const filteredData = getFilteredData();
+    const tableColumn = ["Funcionário", "Mês", "Data Início", "Data Fim", "Código", "Dias"];
+    const tableRows = [];
+
+    filteredData.forEach(({ item }) => {
+        const rowData = [
+            item.funcionario,
+            getMonthFromDate(item.dataInicio) || 'N/A',
+            formatDate(item.dataInicio) || 'N/A',
+            formatDate(item.dataFim) || '-',
+            item.codigo || 'N/A',
+            item.dataFim ? calculateDays(item.dataInicio, item.dataFim) : 'N/A'
+        ];
+        tableRows.push(rowData);
+    });
+
+    // Adicionar a tabela ao PDF usando AutoTable
+    doc.autoTable({
+        head: [tableColumn],
+        body: tableRows,
+        startY: 35,
+        styles: { halign: 'left', fontSize: 10 },
+        headStyles: { fillColor: [79, 70, 229] },
+        alternateRowStyles: { fillColor: [240, 240, 240] },
+    });
+
+    // Salvar o PDF
+    doc.save('relatorio_agendamentos.pdf');
+}
+
+// Função para Exportar para Excel
+function exportToExcel() {
+    // Preparar os dados
+    const filteredData = getFilteredData();
+    const worksheetData = [
+        ["Funcionário", "Mês", "Data Início", "Data Fim", "Código", "Dias"]
+    ];
+
+    filteredData.forEach(({ item }) => {
+        worksheetData.push([
+            item.funcionario,
+            getMonthFromDate(item.dataInicio) || 'N/A',
+            formatDate(item.dataInicio) || 'N/A',
+            formatDate(item.dataFim) || '-',
+            item.codigo || 'N/A',
+            item.dataFim ? calculateDays(item.dataInicio, item.dataFim) : 'N/A'
+        ]);
+    });
+
+    // Criar uma nova planilha
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+    // Criar um novo workbook e adicionar a planilha
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Agendamentos");
+
+    // Aplicar estilos básicos (opcional)
+    // Nota: A aplicação de estilos complexos em Excel via SheetJS pode ser limitada na versão gratuita.
+
+    // Gerar o arquivo Excel e forçar o download
+    XLSX.writeFile(workbook, 'relatorio_agendamentos.xlsx');
+}
+
+// Adicionar Event Listeners aos Botões de Exportação
+exportPdfButton.addEventListener('click', exportToPDF);
+exportExcelButton.addEventListener('click', exportToExcel);
+
 // Filtros
 function getFilteredData() {
     return data.reduce((acc, item, index) => {
