@@ -79,6 +79,34 @@ function saveData() {
 const exportPdfButton = document.getElementById('exportPdfButton');
 const exportExcelButton = document.getElementById('exportExcelButton');
 
+// Função para verificar se há sobreposição de férias para o mesmo funcionário
+function hasOverlap(funcionario, dataInicio, dataFim, excludeIndex = null) {
+    // Converter as datas para objetos Date
+    const newStart = new Date(dataInicio);
+    const newEnd = new Date(dataFim);
+    
+    // Iterar sobre todos os registros
+    for (let i = 0; i < data.length; i++) {
+        // Excluir o registro atual em caso de edição
+        if (excludeIndex !== null && i === excludeIndex) continue;
+        
+        const record = data[i];
+        
+        // Verificar apenas para o mesmo funcionário e se possui Data Fim
+        if (record.funcionario === funcionario && record.dataFim) {
+            const existingStart = new Date(record.dataInicio);
+            const existingEnd = new Date(record.dataFim);
+            
+            // Verificar se há sobreposição
+            if ((newStart <= existingEnd) && (newEnd >= existingStart)) {
+                return true;
+            }
+        }
+    }
+    
+    return false;
+}
+
 // Função para Exportar para PDF
 function exportToPDF() {
     // Criar uma nova instância do jsPDF
