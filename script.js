@@ -213,8 +213,36 @@ function renderTable() {
     const filteredData = getFilteredData();
     console.log('Dados Filtrados para Tabela:', filteredData);
 
+    // Mapeamento para identificar sobreposições
+    const overlapIndices = new Set();
+
+    // Verificar sobreposições entre os registros filtrados
+    for (let i = 0; i < filteredData.length; i++) {
+        for (let j = i + 1; j < filteredData.length; j++) {
+            const itemA = filteredData[i].item;
+            const itemB = filteredData[j].item;
+
+            if (itemA.funcionario === itemB.funcionario && itemA.dataFim && itemB.dataFim) {
+                const startA = new Date(itemA.dataInicio);
+                const endA = new Date(itemA.dataFim);
+                const startB = new Date(itemB.dataInicio);
+                const endB = new Date(itemB.dataFim);
+
+                if ((startA <= endB) && (endA >= startB)) {
+                    overlapIndices.add(filteredData[i].index);
+                    overlapIndices.add(filteredData[j].index);
+                }
+            }
+        }
+    }
+
     filteredData.forEach(({ item, index }) => {
         const tr = document.createElement('tr');
+
+        // Aplicar classe se houver sobreposição
+        if (overlapIndices.has(index)) {
+            tr.classList.add('overlap'); // Classe CSS para destacar
+        }
 
         const tdFuncionario = document.createElement('td');
         tdFuncionario.textContent = item.funcionario;
