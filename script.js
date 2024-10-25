@@ -10,6 +10,8 @@ const codeFilter = document.getElementById('codeFilter');
 const modalTitle = document.getElementById('modalTitle');
 const csvInput = document.getElementById('csvInput');
 const resetButton = document.getElementById('resetButton'); // Botão de Reset
+const codigoSelect = document.getElementById('codigo'); // Seleção de Código
+const dataFimContainer = document.getElementById('dataFimContainer'); // Container do Data Fim
 
 const totalRecords = document.getElementById('totalRecords');
 const uniqueEmployees = document.getElementById('uniqueEmployees');
@@ -33,9 +35,10 @@ function initializeDataFromCSV(file) {
         complete: function(results) {
             data = results.data.map(item => ({
                 funcionario: item.Funcionário.trim(),
-                mes: item.Data ? item.Data.trim() : '',
+                dataInicio: item["Data Início"] ? item["Data Início"].trim() : '',
+                dataFim: item["Data Fim"] ? item["Data Fim"].trim() : '',
                 codigo: item.Código ? item.Código.trim().toUpperCase() : ''
-            })).filter(item => item.funcionario && item.mes && item.codigo); // Filtrar registros válidos
+            })).filter(item => item.funcionario && item.dataInicio && item.codigo); // Filtrar registros válidos
             saveData();
             renderTable();
         },
@@ -73,8 +76,16 @@ function renderTable() {
         tr.appendChild(tdFuncionario);
 
         const tdMes = document.createElement('td');
-        tdMes.textContent = item.mes || 'N/A'; // Exibir 'N/A' se a data estiver vazia
+        tdMes.textContent = getMonthFromDate(item.dataInicio) || 'N/A';
         tr.appendChild(tdMes);
+
+        const tdDataInicio = document.createElement('td');
+        tdDataInicio.textContent = formatDate(item.dataInicio) || 'N/A';
+        tr.appendChild(tdDataInicio);
+
+        const tdDataFim = document.createElement('td');
+        tdDataFim.textContent = formatDate(item.dataFim) || '-';
+        tr.appendChild(tdDataFim);
 
         const tdCodigo = document.createElement('td');
         const span = document.createElement('span');
@@ -141,6 +152,25 @@ function renderTable() {
     updateCharts();
 }
 
+// Função para obter o mês a partir de uma data no formato YYYY-MM-DD
+function getMonthFromDate(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const options = { month: 'short', year: '2-digit' };
+    return date.toLocaleDateString('pt-BR', options).toLowerCase();
+}
+
+// Função para formatar a data para DD/MM/AAAA
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    if (isNaN(date)) return dateStr; // Se já estiver no formato desejado
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String((date.getMonth() + 1)).padStart(2, '0'); // Meses começam em 0
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
 // Filtros
 function getFilteredData() {
     let filtered = [...data];
@@ -154,7 +184,7 @@ function getFilteredData() {
     }
 
     if (selectedMonth !== 'all') {
-        filtered = filtered.filter(item => item.mes === selectedMonth);
+        filtered = filtered.filter(item => getMonthFromDate(item.dataInicio) === selectedMonth);
     }
 
     if (selectedCode !== 'all') {
@@ -170,7 +200,7 @@ function updateStats() {
 
     totalRecords.textContent = filtered.length;
     uniqueEmployees.textContent = new Set(filtered.map(item => item.funcionario)).size;
-    activeMonths.textContent = new Set(filtered.map(item => item.mes)).size;
+    activeMonths.textContent = new Set(filtered.map(item => getMonthFromDate(item.dataInicio))).size;
 }
 
 // Adicionar Evento de Filtro
@@ -178,12 +208,26 @@ searchInput.addEventListener('input', renderTable);
 monthFilter.addEventListener('change', renderTable);
 codeFilter.addEventListener('change', renderTable);
 
+// Gerenciar exibição do campo Data Fim baseado na seleção do código
+codigoSelect.addEventListener('change', function() {
+    const selectedCode = this.value;
+    if (selectedCode === 'ME') {
+        dataFimContainer.style.display = 'block';
+        document.getElementById('dataFim').required = true;
+    } else {
+        dataFimContainer.style.display = 'none';
+        document.getElementById('dataFim').required = false;
+    }
+});
+
 // Abrir Modal para Adicionar
 addButton.addEventListener('click', () => {
     isEditing = false;
     editingIndex = null;
     modalTitle.textContent = 'Adicionar Registro';
     recordForm.reset();
+    dataFimContainer.style.display = 'none'; // Esconder Data Fim por padrão
+    document.getElementById('dataFim').required = false;
     modal.style.display = 'block';
 });
 
@@ -204,15 +248,27 @@ recordForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
     const funcionario = document.getElementById('funcionario').value.trim();
-    const mes = document.getElementById('mes').value;
     const codigo = document.getElementById('codigo').value.toUpperCase();
+    const dataInicio = document.getElementById('dataInicio').value;
+    const dataFim = document.getElementById('dataFim').value;
+
+    if (!funcionario || !codigo || !dataInicio || (codigo === 'ME' && !dataFim)) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+    }
+
+    // Validação adicional: dataFim deve ser maior ou igual a dataInicio
+    if (codigo === 'ME' && dataFim && new Date(dataFim) < new Date(dataInicio)) {
+        alert('A Data Fim deve ser maior ou igual à Data Início.');
+        return;
+    }
 
     if (isEditing && editingIndex !== null) {
         // Editar Registro
-        data[editingIndex] = { funcionario, mes, codigo };
+        data[editingIndex] = { funcionario, codigo, dataInicio, dataFim };
     } else {
         // Adicionar Novo Registro
-        data.push({ funcionario, mes, codigo });
+        data.push({ funcionario, codigo, dataInicio, dataFim });
     }
 
     saveData();
@@ -228,149 +284,4 @@ function openEditModal(index) {
 
     modalTitle.textContent = 'Editar Registro';
     document.getElementById('funcionario').value = record.funcionario;
-    document.getElementById('mes').value = record.mes;
-    document.getElementById('codigo').value = record.codigo;
-    modal.style.display = 'block';
-}
-
-// Deletar Registro
-function deleteRecord(index) {
-    if (confirm('Tem certeza que deseja excluir este registro?')) {
-        data.splice(index, 1);
-        saveData();
-        renderTable();
-    }
-}
-
-// Gráficos
-function updateCharts() {
-    const filtered = getFilteredData();
-
-    // Distribuição por Código
-    const codeCounts = filtered.reduce((acc, item) => {
-        acc[item.codigo] = (acc[item.codigo] || 0) + 1;
-        return acc;
-    }, {});
-
-    const codeLabels = Object.keys(codeCounts);
-    const codeData = Object.values(codeCounts);
-
-    if (codeChart) {
-        codeChart.destroy();
-    }
-
-    const ctxCode = document.getElementById('codeChart').getContext('2d');
-    codeChart = new Chart(ctxCode, {
-        type: 'bar',
-        data: {
-            labels: codeLabels,
-            datasets: [{
-                label: 'Quantidade',
-                data: codeData,
-                backgroundColor: '#4f46e5',
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-        }
-    });
-
-    // Distribuição por Mês
-    const monthCounts = filtered.reduce((acc, item) => {
-        acc[item.mes] = (acc[item.mes] || 0) + 1;
-        return acc;
-    }, {});
-
-    const monthLabels = Object.keys(monthCounts);
-    const monthData = Object.values(monthCounts);
-
-    // Verificar se há dados para o gráfico
-    if (monthLabels.length === 0) {
-        // Opcional: Exibir uma mensagem ou gráfico vazio
-        if (monthChart) {
-            monthChart.destroy();
-        }
-        // Limpar o canvas
-        const ctxMonthEmpty = document.getElementById('monthChart').getContext('2d');
-        ctxMonthEmpty.clearRect(0, 0, ctxMonthEmpty.canvas.width, ctxMonthEmpty.canvas.height);
-        return;
-    }
-
-    if (monthChart) {
-        monthChart.destroy();
-    }
-
-    const ctxMonth = document.getElementById('monthChart').getContext('2d');
-    monthChart = new Chart(ctxMonth, {
-        type: 'bar',
-        data: {
-            labels: monthLabels,
-            datasets: [{
-                label: 'Quantidade',
-                data: monthData,
-                backgroundColor: '#4f46e5',
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-        }
-    });
-}
-
-// Função para Carregar o CSV Automaticamente
-function loadCSVAutomatically() {
-    fetch('data.csv')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Falha ao carregar o arquivo CSV');
-            }
-            return response.text();
-        })
-        .then(csvText => {
-            Papa.parse(csvText, {
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    data = results.data.map(item => ({
-                        funcionario: item.Funcionário.trim(),
-                        mes: item.Data ? item.Data.trim() : '',
-                        codigo: item.Código ? item.Código.trim().toUpperCase() : ''
-                    })).filter(item => item.funcionario && item.mes && item.codigo); // Filtrar registros válidos
-                    saveData();
-                    renderTable();
-                },
-                error: function(error) {
-                    alert('Erro ao analisar o CSV: ' + error.message);
-                }
-            });
-        })
-        .catch(error => {
-            console.error('Erro ao buscar o CSV:', error);
-            alert('Erro ao carregar o arquivo CSV. Verifique o console para mais detalhes.');
-        });
-}
-
-// Botão de Reset (opcional)
-resetButton.addEventListener('click', () => {
-    if (confirm('Isso limpará todos os dados e recarregará o CSV original. Deseja continuar?')) {
-        localStorage.removeItem('dashboardData');
-        loadCSVAutomatically();
-    }
-});
-
-// Inicializar Aplicação
-function init() {
-    // Tentar carregar dados do localStorage
-    const storedData = localStorage.getItem('dashboardData');
-    if (storedData) {
-        data = JSON.parse(storedData);
-        renderTable();
-    } else {
-        // Carregar dados do arquivo CSV automaticamente
-        loadCSVAutomatically();
-    }
-}
-
-window.onload = init;
+    doc
