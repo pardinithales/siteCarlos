@@ -152,6 +152,10 @@ header h1 {
     position: relative;
 }
 
+.codigo-badge i {
+    margin-right: 5px;
+}
+
 .codigo-badge[data-tooltip]:hover::after {
     content: attr(data-tooltip);
     position: absolute;
@@ -202,6 +206,11 @@ header h1 {
 
 .codigo-badge.ME {
     background-color: #dc3545; /* Vermelho para Médico */
+}
+
+.codigo-badge.unknown {
+    background-color: #6c757d; /* Cinza para Código Desconhecido */
+    color: #fff;
 }
 
 /* Coluna de Ações */
