@@ -10,15 +10,10 @@ const codeFilter = document.getElementById('codeFilter');
 const modalTitle = document.getElementById('modalTitle');
 const csvInput = document.getElementById('csvInput');
 const resetButton = document.getElementById('resetButton'); // Botão de Reset
+const forceLoadButton = document.getElementById('forceLoadButton'); // Botão de Forçar Carregamento
 const codigoSelect = document.getElementById('codigo'); // Seleção de Código
-const dataFimContainer = document.getElementById('dataFimContainer'); // Container do Data Fim
+const dataFimInput = document.getElementById('dataFim'); // Input de Data Fim
 const message = document.getElementById('message'); // Mensagem de Verificação
-forceLoadButton.addEventListener('click', () => {
-    loadCSVAutomatically();
-});
-const forceLoadButton = document.getElementById('forceLoadButton');
-
-
 
 const totalRecords = document.getElementById('totalRecords');
 const uniqueEmployees = document.getElementById('uniqueEmployees');
@@ -68,6 +63,11 @@ csvInput.addEventListener('change', function(event) {
     } else {
         showMessage('Por favor, selecione um arquivo CSV válido.', 'error');
     }
+});
+
+// Forçar Carregamento do CSV
+forceLoadButton.addEventListener('click', () => {
+    loadCSVAutomatically();
 });
 
 // Salvar Dados no localStorage (opcional, caso queira persistir)
@@ -211,15 +211,15 @@ searchInput.addEventListener('input', renderTable);
 monthFilter.addEventListener('change', renderTable);
 codeFilter.addEventListener('change', renderTable);
 
-// Gerenciar exibição do campo Data Fim baseado na seleção do código
+// Gerenciar obrigatoriedade do campo Data Fim baseado na seleção do código
 codigoSelect.addEventListener('change', function() {
     const selectedCode = this.value;
     if (selectedCode === 'ME') {
-        dataFimContainer.style.display = 'block';
-        document.getElementById('dataFim').required = true;
+        dataFimInput.required = true;
+        dataFimInput.classList.add('required');
     } else {
-        dataFimContainer.style.display = 'none';
-        document.getElementById('dataFim').required = false;
+        dataFimInput.required = false;
+        dataFimInput.classList.remove('required');
     }
 });
 
@@ -229,8 +229,9 @@ addButton.addEventListener('click', () => {
     editingIndex = null;
     modalTitle.textContent = 'Adicionar Registro';
     recordForm.reset();
-    dataFimContainer.style.display = 'none'; // Esconder Data Fim por padrão
-    document.getElementById('dataFim').required = false;
+    dataFimInput.required = false;
+    dataFimInput.classList.remove('required');
+    showMessage('', ''); // Limpar mensagens
     modal.style.display = 'block';
 });
 
@@ -253,7 +254,7 @@ recordForm.addEventListener('submit', (e) => {
     const funcionario = document.getElementById('funcionario').value.trim();
     const codigo = document.getElementById('codigo').value.toUpperCase();
     const dataInicio = document.getElementById('dataInicio').value;
-    const dataFim = document.getElementById('dataFim').value;
+    const dataFim = dataFimInput.value;
 
     if (!funcionario || !codigo || !dataInicio || (codigo === 'ME' && !dataFim)) {
         showMessage('Por favor, preencha todos os campos obrigatórios.', 'error');
@@ -261,7 +262,7 @@ recordForm.addEventListener('submit', (e) => {
     }
 
     // Validação adicional: dataFim deve ser maior ou igual a dataInicio
-    if (codigo === 'ME' && dataFim && new Date(dataFim) < new Date(dataInicio)) {
+    if (dataFim && new Date(dataFim) < new Date(dataInicio)) {
         showMessage('A Data Fim deve ser maior ou igual à Data Início.', 'error');
         return;
     }
@@ -295,15 +296,16 @@ function openEditModal(index) {
     document.getElementById('dataInicio').value = record.dataInicio;
     document.getElementById('dataFim').value = record.dataFim;
 
-    // Gerenciar exibição do campo Data Fim
+    // Gerenciar obrigatoriedade do campo Data Fim
     if (record.codigo === 'ME') {
-        dataFimContainer.style.display = 'block';
-        document.getElementById('dataFim').required = true;
+        dataFimInput.required = true;
+        dataFimInput.classList.add('required');
     } else {
-        dataFimContainer.style.display = 'none';
-        document.getElementById('dataFim').required = false;
+        dataFimInput.required = false;
+        dataFimInput.classList.remove('required');
     }
 
+    showMessage('', ''); // Limpar mensagens
     modal.style.display = 'block';
 }
 
@@ -457,6 +459,10 @@ resetButton.addEventListener('click', () => {
 
 // Função para Mostrar Mensagens de Verificação
 function showMessage(text, type) {
+    if (!text) {
+        message.style.display = 'none';
+        return;
+    }
     message.textContent = text;
     message.className = 'message'; // Resetar classes
     if (type === 'success') {
