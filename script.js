@@ -75,14 +75,32 @@ function saveData() {
     localStorage.setItem('dashboardData', JSON.stringify(data));
 }
 
-// Renderizar Tabela
+// Filtros
+function getFilteredData() {
+    return data.reduce((acc, item, index) => {
+        const searchValue = searchInput.value.toLowerCase();
+        const selectedMonth = monthFilter.value;
+        const selectedCode = codeFilter.value;
+
+        const matchesSearch = item.funcionario.toLowerCase().includes(searchValue);
+        const matchesMonth = selectedMonth === 'all' || getMonthFromDate(item.dataInicio) === selectedMonth;
+        const matchesCode = selectedCode === 'all' || item.codigo === selectedCode;
+
+        if (matchesSearch && matchesMonth && matchesCode) {
+            acc.push({ item, index });
+        }
+
+        return acc;
+    }, []);
+}
+
 // Renderizar Tabela
 function renderTable() {
     tableBody.innerHTML = '';
     const filteredData = getFilteredData();
     console.log('Dados Filtrados para Tabela:', filteredData);
 
-    filteredData.forEach((item, index) => {
+    filteredData.forEach(({ item, index }) => {
         const tr = document.createElement('tr');
 
         const tdFuncionario = document.createElement('td');
@@ -144,7 +162,7 @@ function renderTable() {
         const editBtn = document.createElement('button');
         editBtn.innerHTML = '<i class="fas fa-edit"></i>';
         editBtn.classList.add('edit');
-        editBtn.onclick = () => openEditModal(index);
+        editBtn.onclick = () => openEditModal(index); // Passa o índice correto
         tdAcoes.appendChild(editBtn);
 
         // Botão Deletar
@@ -184,29 +202,6 @@ function formatDate(dateStr) {
     return `${day}/${month}/${year}`;
 }
 
-// Filtros
-function getFilteredData() {
-    let filtered = [...data];
-
-    const searchValue = searchInput.value.toLowerCase();
-    const selectedMonth = monthFilter.value;
-    const selectedCode = codeFilter.value;
-
-    if (searchValue) {
-        filtered = filtered.filter(item => item.funcionario.toLowerCase().includes(searchValue));
-    }
-
-    if (selectedMonth !== 'all') {
-        filtered = filtered.filter(item => getMonthFromDate(item.dataInicio) === selectedMonth);
-    }
-
-    if (selectedCode !== 'all') {
-        filtered = filtered.filter(item => item.codigo === selectedCode);
-    }
-
-    return filtered;
-}
-
 // Função para calcular a diferença de dias entre duas datas
 function calculateDays(startDateStr, endDateStr) {
     const startDate = new Date(startDateStr);
@@ -233,8 +228,8 @@ function updateStats() {
     console.log('Estatísticas Atualizadas:', filtered);
 
     totalRecords.textContent = filtered.length;
-    uniqueEmployees.textContent = new Set(filtered.map(item => item.funcionario)).size;
-    activeMonths.textContent = new Set(filtered.map(item => getMonthFromDate(item.dataInicio))).size;
+    uniqueEmployees.textContent = new Set(filtered.map(({ item }) => item.funcionario)).size;
+    activeMonths.textContent = new Set(filtered.map(({ item }) => getMonthFromDate(item.dataInicio))).size;
 }
 
 // Adicionar Evento de Filtro
@@ -357,7 +352,7 @@ function updateCharts() {
     console.log('Dados para Gráficos:', filtered);
 
     // Distribuição por Código
-    const codeCounts = filtered.reduce((acc, item) => {
+    const codeCounts = filtered.reduce((acc, { item }) => {
         acc[item.codigo] = (acc[item.codigo] || 0) + 1;
         return acc;
     }, {});
@@ -389,7 +384,7 @@ function updateCharts() {
     // Distribuição por Mês
     const monthCounts = {};
 
-    filtered.forEach(item => {
+    filtered.forEach(({ item }) => {
         const month = getMonthFromDate(item.dataInicio);
         if (month) {
             monthCounts[month] = (monthCounts[month] || 0) + 1;
