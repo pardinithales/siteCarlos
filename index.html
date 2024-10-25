@@ -13,21 +13,31 @@
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <!-- CSS Personalizado -->
     <link rel="stylesheet" href="styles.css">
+    <!-- jsPDF para geração de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- jsPDF-AutoTable para tabelas no PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <!-- SheetJS para geração de Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Dashboard de Agendamentos</h1>
             <div>
-                <button id="addButton" class="btn-add"><i class="fas fa-plus"></i> Adicionar Registro</button>
-                <label for="csvInput" class="btn-add" style="margin-left: 10px; cursor: pointer;">
-                    <i class="fas fa-file-csv"></i> Carregar CSV
-                </label>
-                <input type="file" id="csvInput" accept=".csv" style="display: none;">
-                <!-- Botão de Reset (opcional) -->
-                <button id="resetButton" class="btn-add" style="margin-left: 10px;"><i class="fas fa-redo"></i> Resetar Dados</button>
-                <!-- Botão de Forçar Carregamento (opcional) -->
-                <button id="forceLoadButton" class="btn-add" style="margin-left: 10px;"><i class="fas fa-sync"></i> Carregar CSV</button>
+                    <button id="addButton" class="btn-add"><i class="fas fa-plus"></i> Adicionar Registro</button>
+                    <label for="csvInput" class="btn-add" style="margin-left: 10px; cursor: pointer;">
+                        <i class="fas fa-file-csv"></i> Carregar CSV
+                    </label>
+                    <input type="file" id="csvInput" accept=".csv" style="display: none;">
+                    <!-- Botões de Exportação -->
+                    <button id="exportPdfButton" class="btn-add" style="margin-left: 10px;"><i class="fas fa-file-pdf"></i> Exportar para PDF</button>
+                    <button id="exportExcelButton" class="btn-add" style="margin-left: 10px;"><i class="fas fa-file-excel"></i> Exportar para Excel</button>
+                    <!-- Botão de Reset (opcional) -->
+                    <button id="resetButton" class="btn-add" style="margin-left: 10px;"><i class="fas fa-redo"></i> Resetar Dados</button>
+                    <!-- Botão de Forçar Carregamento (opcional) -->
+                    <button id="forceLoadButton" class="btn-add" style="margin-left: 10px;"><i class="fas fa-sync"></i> Carregar CSV</button>
             </div>
         </header>
 
