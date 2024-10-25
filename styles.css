@@ -351,3 +351,9 @@ header h1 {
         gap: 10px;
     }
 }
+
+/* Estilos para Destacar Sobreposições */
+.overlap {
+    background-color: #f8d7da !important; /* Vermelho claro */
+    color: #721c24 !important; /* Texto em vermelho escuro */
+}
