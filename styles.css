@@ -45,6 +45,24 @@ header h1 {
     background-color: #4f46e5;
 }
 
+/* Mensagem de Verificação */
+.message {
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    font-size: 0.9em;
+}
+
+.message.success {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.message.error {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
 /* Filtros */
 .filters {
     display: flex;
