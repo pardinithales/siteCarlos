@@ -142,6 +142,36 @@ function hasOverlap(funcionario, dataInicio, dataFim, excludeIndex = null) {
 }
 
 /**
+ * Popula o filtro de meses com os meses únicos dos dados
+ */
+function populateMonthFilter() {
+    const months = new Set();
+
+    data.forEach(item => {
+        const month = getMonthFromDate(item.dataInicio);
+        if (month) {
+            months.add(month);
+        }
+    });
+
+    // Ordenar os meses
+    const sortedMonths = Array.from(months).sort((a, b) => {
+        const [monthA, yearA] = a.split('/').map(Number);
+        const [monthB, yearB] = b.split('/').map(Number);
+        return yearA !== yearB ? yearA - yearB : monthA - monthB;
+    });
+
+    // Preencher o select
+    monthFilter.innerHTML = '<option value="all">Todos os Meses</option>';
+    sortedMonths.forEach(month => {
+        const option = document.createElement('option');
+        option.value = month;
+        option.textContent = month;
+        monthFilter.appendChild(option);
+    });
+}
+
+/**
  * Gera um ID único para cada registro
  * @returns {string} ID único
  */
@@ -260,6 +290,9 @@ function renderTable() {
     const filteredData = getFilteredData();
     console.log('Dados Filtrados para Tabela:', filteredData);
 
+    // Popula o filtro de meses
+    populateMonthFilter();
+
     // Mapeamento para identificar sobreposições
     const overlapIndices = new Set();
 
@@ -307,23 +340,32 @@ function renderTable() {
         const tdCodigo = document.createElement('td');
         const span = document.createElement('span');
         span.classList.add('codigo-badge');
-        span.textContent = item.codigo || 'N/A'; // Exibir 'N/A' se o código estiver vazio
 
-        // Definir o tooltip com base no código
+        // Definir o conteúdo e ícone baseado no código
         switch(item.codigo) {
             case 'F':
+                span.classList.add('F');
+                span.innerHTML = '<i class="fas fa-sun"></i> F';
                 span.setAttribute('data-tooltip', 'Férias');
                 break;
             case 'M':
+                span.classList.add('M');
+                span.innerHTML = '<i class="fas fa-calendar-alt"></i> M';
                 span.setAttribute('data-tooltip', 'Marcada');
                 break;
             case 'D':
+                span.classList.add('D');
+                span.innerHTML = '<i class="fas fa-clock"></i> D';
                 span.setAttribute('data-tooltip', 'Aguarda aprovação do DP');
                 break;
             case 'ME':
+                span.classList.add('ME');
+                span.innerHTML = '<i class="fas fa-stethoscope"></i> ME';
                 span.setAttribute('data-tooltip', 'Médico');
                 break;
             default:
+                span.classList.add('unknown');
+                span.innerHTML = 'N/A';
                 span.setAttribute('data-tooltip', 'Código Desconhecido');
         }
 
