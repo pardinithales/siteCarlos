@@ -20,11 +20,12 @@
             <h1>Dashboard de Agendamentos</h1>
             <div>
                 <button id="addButton" class="btn-add"><i class="fas fa-plus"></i> Adicionar Registro</button>
-                <!-- Botão para carregar CSV -->
                 <label for="csvInput" class="btn-add" style="margin-left: 10px; cursor: pointer;">
                     <i class="fas fa-file-csv"></i> Carregar CSV
                 </label>
                 <input type="file" id="csvInput" accept=".csv" style="display: none;">
+                <!-- Botão de Reset (opcional) -->
+                <button id="resetButton" class="btn-add" style="margin-left: 10px;"><i class="fas fa-redo"></i> Resetar Dados</button>
             </div>
         </header>
 
@@ -45,6 +46,11 @@
                 <option value="jun/25">jun/25</option>
                 <option value="jul/25">jul/25</option>
                 <option value="ago/25">ago/25</option>
+                <!-- Adicionando mais meses até dezembro de 2025 -->
+                <option value="set/25">set/25</option>
+                <option value="out/25">out/25</option>
+                <option value="nov/25">nov/25</option>
+                <option value="dez/25">dez/25</option>
             </select>
             <select id="codeFilter">
                 <option value="all">Todos os códigos</option>
@@ -52,6 +58,22 @@
                 <option value="M">M</option>
                 <option value="D">D</option>
             </select>
+        </section>
+
+        <!-- Legenda -->
+        <section class="legend">
+            <h3>Legenda:</h3>
+            <ul>
+                <li>
+                    <span class="codigo-badge" data-tooltip="Férias">F</span> = Férias
+                </li>
+                <li>
+                    <span class="codigo-badge" data-tooltip="Aguarda aprovação do DP">D</span> = Aguarda aprovação do DP
+                </li>
+                <li>
+                    <span class="codigo-badge" data-tooltip="Marcada">M</span> = Marcada
+                </li>
+            </ul>
         </section>
 
         <!-- Estatísticas -->
@@ -123,6 +145,10 @@
                     <option value="jun/25">jun/25</option>
                     <option value="jul/25">jul/25</option>
                     <option value="ago/25">ago/25</option>
+                    <option value="set/25">set/25</option>
+                    <option value="out/25">out/25</option>
+                    <option value="nov/25">nov/25</option>
+                    <option value="dez/25">dez/25</option>
                 </select>
 
                 <label for="codigo">Código:</label>
