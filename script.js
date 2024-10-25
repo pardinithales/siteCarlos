@@ -76,6 +76,7 @@ function saveData() {
 }
 
 // Renderizar Tabela
+// Renderizar Tabela
 function renderTable() {
     tableBody.innerHTML = '';
     const filteredData = getFilteredData();
@@ -125,6 +126,16 @@ function renderTable() {
 
         tdCodigo.appendChild(span);
         tr.appendChild(tdCodigo);
+
+        // Nova Coluna para Dias
+        const tdDias = document.createElement('td');
+        if (item.dataFim) {
+            const dias = calculateDays(item.dataInicio, item.dataFim);
+            tdDias.textContent = dias !== null ? dias : 'N/A';
+        } else {
+            tdDias.textContent = 'N/A';
+        }
+        tr.appendChild(tdDias);
 
         const tdAcoes = document.createElement('td');
         tdAcoes.classList.add('actions');
@@ -194,6 +205,26 @@ function getFilteredData() {
     }
 
     return filtered;
+}
+
+// Função para calcular a diferença de dias entre duas datas
+function calculateDays(startDateStr, endDateStr) {
+    const startDate = new Date(startDateStr);
+    const endDate = new Date(endDateStr);
+
+    if (isNaN(startDate) || isNaN(endDate)) {
+        return null; // Retorna null se alguma das datas for inválida
+    }
+
+    // Calcular a diferença em milissegundos
+    const diffTime = endDate - startDate;
+    if (diffTime < 0) {
+        return null; // Retorna null se a Data Fim for anterior à Data Início
+    }
+
+    // Converter a diferença para dias
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
 }
 
 // Atualizar Estatísticas
