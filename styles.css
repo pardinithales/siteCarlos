@@ -63,6 +63,11 @@ header h1 {
     color: #b91c1c;
 }
 
+.message.info {
+    background-color: #bfdbfe;
+    color: #1d4ed8;
+}
+
 /* Filtros */
 .filters {
     display: flex;
@@ -315,10 +320,6 @@ header h1 {
     margin-bottom: 15px;
     border: 1px solid #ddd;
     border-radius: 5px;
-}
-
-#dataFimContainer {
-    /* Estilo adicional, se necessário */
 }
 
 .btn-submit {
