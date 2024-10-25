@@ -13,6 +13,12 @@ const resetButton = document.getElementById('resetButton'); // Botão de Reset
 const codigoSelect = document.getElementById('codigo'); // Seleção de Código
 const dataFimContainer = document.getElementById('dataFimContainer'); // Container do Data Fim
 const message = document.getElementById('message'); // Mensagem de Verificação
+forceLoadButton.addEventListener('click', () => {
+    loadCSVAutomatically();
+});
+const forceLoadButton = document.getElementById('forceLoadButton');
+
+
 
 const totalRecords = document.getElementById('totalRecords');
 const uniqueEmployees = document.getElementById('uniqueEmployees');
