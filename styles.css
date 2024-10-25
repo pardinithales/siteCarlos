@@ -1,4 +1,4 @@
-/* Reset Básico */
+/* Reset básico */
 * {
     margin: 0;
     padding: 0;
@@ -13,7 +13,7 @@
     font-family: Arial, sans-serif;
 }
 
-/* Cabeçalho */
+/* Header */
 header {
     display: flex;
     justify-content: space-between;
@@ -22,18 +22,19 @@ header {
 }
 
 header h1 {
-    font-size: 2em;
     color: #333;
 }
 
 .btn-add {
-    background-color: #4f46e5;
-    color: white;
+    background-color: #6366f1;
+    color: #fff;
     border: none;
     padding: 10px 15px;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 1em;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
 }
 
 .btn-add i {
@@ -41,7 +42,7 @@ header h1 {
 }
 
 .btn-add:hover {
-    background-color: #4338ca;
+    background-color: #4f46e5;
 }
 
 /* Filtros */
@@ -51,11 +52,81 @@ header h1 {
     margin-bottom: 20px;
 }
 
-.filters input, .filters select {
-    padding: 8px;
-    border: 1px solid #ccc;
+.filters input,
+.filters select {
+    padding: 8px 10px;
+    border: 1px solid #ddd;
     border-radius: 5px;
-    flex: 1;
+    font-size: 0.9em;
+}
+
+/* Legenda */
+.legend {
+    margin: 20px 0;
+    background-color: #f3f4f6;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.legend h3 {
+    margin-bottom: 10px;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.legend ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    gap: 20px;
+}
+
+.legend li {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+/* Tooltip */
+.codigo-badge[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%; /* Posição acima do elemento */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-size: 0.8em;
+    opacity: 1;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.codigo-badge[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 115%; /* Posição da seta */
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+
+/* Estilos para os Badges */
+.codigo-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: bold;
+    text-align: center;
+    cursor: default;
+    position: relative;
 }
 
 /* Estatísticas */
@@ -66,10 +137,10 @@ header h1 {
 }
 
 .stat-card {
-    flex: 1;
     background-color: #f9fafb;
-    padding: 20px;
+    padding: 15px;
     border-radius: 10px;
+    flex: 1;
     text-align: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
@@ -80,7 +151,7 @@ header h1 {
 }
 
 .stat-card p {
-    font-size: 2em;
+    font-size: 1.5em;
     color: #333;
 }
 
@@ -97,18 +168,12 @@ header h1 {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    position: relative; /* Adicionado para melhor controle do canvas */
+    position: relative;
 }
 
 .chart-container canvas {
     width: 100% !important;
-    height: 300px !important; /* Defina uma altura fixa para o canvas */
-}
-
-
-.chart-container h3 {
-    margin-bottom: 15px;
-    color: #555;
+    height: 300px !important; /* Ajuste conforme necessário */
 }
 
 /* Tabela de Dados */
@@ -117,73 +182,82 @@ header h1 {
     border-collapse: collapse;
 }
 
-.data-table th, .data-table td {
+.data-table th,
+.data-table td {
     padding: 12px 15px;
     border: 1px solid #ddd;
     text-align: left;
 }
 
 .data-table th {
-    background-color: #f1f5f9;
-    color: #333;
+    background-color: #4f46e5;
+    color: #fff;
 }
 
-.data-table tr:hover {
+.data-table tr:nth-child(even) {
     background-color: #f9fafb;
 }
 
-.data-table .actions button {
+/* Ações na Tabela */
+.actions button {
     background: none;
     border: none;
     cursor: pointer;
     margin-right: 5px;
+    font-size: 1em;
 }
 
-.data-table .actions .edit {
-    color: #4f46e5;
+.actions .edit {
+    color: #10b981; /* Verde */
 }
 
-.data-table .actions .delete {
-    color: #ef4444;
+.actions .delete {
+    color: #ef4444; /* Vermelho */
+}
+
+.actions button:hover {
+    opacity: 0.7;
 }
 
 /* Modal */
 .modal {
-    display: none; /* Oculto por padrão */
-    position: fixed;
-    z-index: 1;
+    display: none; /* Escondido por padrão */
+    position: fixed; /* Fica fixo na tela */
+    z-index: 1; /* Fica acima de outros elementos */
     left: 0;
     top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.5);
+    width: 100%; /* Largura total */
+    height: 100%; /* Altura total */
+    overflow: auto; /* Permite rolagem se necessário */
+    background-color: rgba(0,0,0,0.4); /* Fundo semi-transparente */
 }
 
 .modal-content {
     background-color: #fff;
-    margin: 10% auto;
+    margin: 10% auto; /* 10% do topo e centralizado */
     padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Largura do modal */
     border-radius: 10px;
-    width: 400px;
-    position: relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
 .close {
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    font-size: 1.5em;
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
     cursor: pointer;
-    color: #555;
 }
 
-.close:hover {
+.close:hover,
+.close:focus {
     color: #000;
+    text-decoration: none;
 }
 
 .modal-content h2 {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     color: #333;
 }
 
@@ -193,48 +267,41 @@ header h1 {
     color: #555;
 }
 
-.modal-content form input, 
+.modal-content form input,
 .modal-content form select {
     width: 100%;
-    padding: 8px;
+    padding: 8px 10px;
     margin-bottom: 15px;
-    border: 1px solid #ccc;
+    border: 1px solid #ddd;
     border-radius: 5px;
 }
 
 .btn-submit {
     background-color: #4f46e5;
-    color: white;
+    color: #fff;
     border: none;
     padding: 10px 15px;
     border-radius: 5px;
     cursor: pointer;
-    width: 100%;
-    font-size: 1em;
+    font-size: 0.9em;
 }
 
 .btn-submit:hover {
     background-color: #4338ca;
 }
 
-/* Botão de Carregar CSV */
-.btn-add i {
-    margin-right: 5px;
-}
+/* Responsividade */
+@media (max-width: 768px) {
+    .filters {
+        flex-direction: column;
+    }
 
-.btn-add:hover {
-    background-color: #4338ca;
-}
+    .charts {
+        flex-direction: column;
+    }
 
-/* Responsividade para o Container Principal */
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-}
-
-/* Estilos para o botão de upload */
-#csvInput {
-    display: none;
+    .legend ul {
+        flex-direction: column;
+        gap: 10px;
+    }
 }
