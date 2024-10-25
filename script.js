@@ -284,4 +284,177 @@ function openEditModal(index) {
 
     modalTitle.textContent = 'Editar Registro';
     document.getElementById('funcionario').value = record.funcionario;
-    doc
+    document.getElementById('codigo').value = record.codigo;
+    document.getElementById('dataInicio').value = record.dataInicio;
+    document.getElementById('dataFim').value = record.dataFim;
+
+    // Gerenciar exibição do campo Data Fim
+    if (record.codigo === 'ME') {
+        dataFimContainer.style.display = 'block';
+        document.getElementById('dataFim').required = true;
+    } else {
+        dataFimContainer.style.display = 'none';
+        document.getElementById('dataFim').required = false;
+    }
+
+    modal.style.display = 'block';
+}
+
+// Deletar Registro
+function deleteRecord(index) {
+    if (confirm('Tem certeza que deseja excluir este registro?')) {
+        data.splice(index, 1);
+        saveData();
+        renderTable();
+    }
+}
+
+// Gráficos
+function updateCharts() {
+    const filtered = getFilteredData();
+
+    // Distribuição por Código
+    const codeCounts = filtered.reduce((acc, item) => {
+        acc[item.codigo] = (acc[item.codigo] || 0) + 1;
+        return acc;
+    }, {});
+
+    const codeLabels = Object.keys(codeCounts);
+    const codeData = Object.values(codeCounts);
+
+    if (codeChart) {
+        codeChart.destroy();
+    }
+
+    const ctxCode = document.getElementById('codeChart').getContext('2d');
+    codeChart = new Chart(ctxCode, {
+        type: 'bar',
+        data: {
+            labels: codeLabels,
+            datasets: [{
+                label: 'Quantidade',
+                data: codeData,
+                backgroundColor: '#4f46e5',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+        }
+    });
+
+    // Distribuição por Mês
+    const monthCounts = {};
+
+    filtered.forEach(item => {
+        const month = getMonthFromDate(item.dataInicio);
+        if (month) {
+            monthCounts[month] = (monthCounts[month] || 0) + 1;
+        }
+    });
+
+    const monthLabels = Object.keys(monthCounts);
+    const monthData = Object.values(monthCounts);
+
+    // Verificar se há dados para o gráfico
+    if (monthLabels.length === 0) {
+        // Opcional: Exibir uma mensagem ou gráfico vazio
+        if (monthChart) {
+            monthChart.destroy();
+        }
+        // Limpar o canvas
+        const ctxMonthEmpty = document.getElementById('monthChart').getContext('2d');
+        ctxMonthEmpty.clearRect(0, 0, ctxMonthEmpty.canvas.width, ctxMonthEmpty.canvas.height);
+        return;
+    }
+
+    if (monthChart) {
+        monthChart.destroy();
+    }
+
+    const ctxMonth = document.getElementById('monthChart').getContext('2d');
+    monthChart = new Chart(ctxMonth, {
+        type: 'bar',
+        data: {
+            labels: monthLabels,
+            datasets: [{
+                label: 'Quantidade',
+                data: monthData,
+                backgroundColor: '#4f46e5',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+        }
+    });
+}
+
+// Função para Carregar o CSV Automaticamente
+function loadCSVAutomatically() {
+    fetch('data.csv')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Falha ao carregar o arquivo CSV');
+            }
+            return response.text();
+        })
+        .then(csvText => {
+            Papa.parse(csvText, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    data = results.data.map(item => ({
+                        funcionario: item.Funcionário.trim(),
+                        dataInicio: item["Data Início"] ? formatCSVDate(item["Data Início"].trim()) : '',
+                        dataFim: item["Data Fim"] ? formatCSVDate(item["Data Fim"].trim()) : '',
+                        codigo: item.Código ? item.Código.trim().toUpperCase() : ''
+                    })).filter(item => item.funcionario && item.dataInicio && item.codigo); // Filtrar registros válidos
+                    saveData();
+                    renderTable();
+                },
+                error: function(error) {
+                    alert('Erro ao analisar o CSV: ' + error.message);
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Erro ao buscar o CSV:', error);
+            alert('Erro ao carregar o arquivo CSV. Verifique o console para mais detalhes.');
+        });
+}
+
+// Função para formatar a data do CSV para YYYY-MM-DD (formato utilizado pelo input type="date")
+function formatCSVDate(dateStr) {
+    // Supondo que a data no CSV esteja no formato DD/MM/AAAA ou DD/MM/AA
+    const parts = dateStr.split('/');
+    if (parts.length !== 3) return '';
+    let [day, month, year] = parts;
+    if (year.length === 2) {
+        year = '20' + year;
+    }
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+}
+
+// Botão de Reset (opcional)
+resetButton.addEventListener('click', () => {
+    if (confirm('Isso limpará todos os dados e recarregará o CSV original. Deseja continuar?')) {
+        localStorage.removeItem('dashboardData');
+        loadCSVAutomatically();
+    }
+});
+
+// Inicializar Aplicação
+function init() {
+    // Tentar carregar dados do localStorage
+    const storedData = localStorage.getItem('dashboardData');
+    if (storedData) {
+        data = JSON.parse(storedData);
+        renderTable();
+    } else {
+        // Carregar dados do arquivo CSV automaticamente
+        loadCSVAutomatically();
+    }
+}
+
+window.onload = init;
