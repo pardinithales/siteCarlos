@@ -88,22 +88,23 @@ header h1 {
     position: relative;
 }
 
-/* Tooltip */
+/* Tooltip Aprimorado */
 .codigo-badge[data-tooltip]:hover::after {
     content: attr(data-tooltip);
     position: absolute;
     bottom: 125%; /* Posição acima do elemento */
     left: 50%;
     transform: translateX(-50%);
-    background-color: #333;
+    background-color: rgba(0, 0, 0, 0.75);
     color: #fff;
-    padding: 5px 10px;
+    padding: 6px 10px;
     border-radius: 4px;
     white-space: nowrap;
     font-size: 0.8em;
     opacity: 1;
     pointer-events: none;
-    transition: opacity 0.3s;
+    transition: opacity 0.3s ease;
+    z-index: 10;
 }
 
 .codigo-badge[data-tooltip]:hover::before {
@@ -114,7 +115,8 @@ header h1 {
     transform: translateX(-50%);
     border-width: 5px;
     border-style: solid;
-    border-color: #333 transparent transparent transparent;
+    border-color: rgba(0, 0, 0, 0.75) transparent transparent transparent;
+    z-index: 10;
 }
 
 /* Estilos para os Badges */
@@ -255,7 +257,7 @@ header h1 {
 
 .modal-content {
     background-color: #fff;
-    margin: 10% auto; /* 10% do topo e centralizado */
+    margin: 5% auto; /* 5% do topo e centralizado */
     padding: 20px;
     border: 1px solid #888;
     width: 80%; /* Largura do modal */
@@ -295,6 +297,10 @@ header h1 {
     margin-bottom: 15px;
     border: 1px solid #ddd;
     border-radius: 5px;
+}
+
+#dataFimContainer {
+    /* Estilo adicional, se necessário */
 }
 
 .btn-submit {
