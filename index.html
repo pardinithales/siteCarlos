@@ -20,14 +20,14 @@
             <h1>Dashboard de Agendamentos</h1>
             <div>
                 <button id="addButton" class="btn-add"><i class="fas fa-plus"></i> Adicionar Registro</button>
-                <button id="forceLoadButton" class="btn-add" style="margin-left: 10px;"><i class="fas fa-sync"></i> Carregar CSV</button>
-
                 <label for="csvInput" class="btn-add" style="margin-left: 10px; cursor: pointer;">
                     <i class="fas fa-file-csv"></i> Carregar CSV
                 </label>
                 <input type="file" id="csvInput" accept=".csv" style="display: none;">
                 <!-- Botão de Reset (opcional) -->
                 <button id="resetButton" class="btn-add" style="margin-left: 10px;"><i class="fas fa-redo"></i> Resetar Dados</button>
+                <!-- Botão de Forçar Carregamento (opcional) -->
+                <button id="forceLoadButton" class="btn-add" style="margin-left: 10px;"><i class="fas fa-sync"></i> Carregar CSV</button>
             </div>
         </header>
 
@@ -154,11 +154,9 @@
                 <label for="dataInicio">Data Início:</label>
                 <input type="date" id="dataInicio" name="dataInicio" required>
 
-                <!-- Campo de Data Fim (apenas para MEDICO) -->
-                <div id="dataFimContainer" style="display: none;">
-                    <label for="dataFim">Data Fim:</label>
-                    <input type="date" id="dataFim" name="dataFim">
-                </div>
+                <!-- Campo de Data Fim -->
+                <label for="dataFim">Data Fim:</label>
+                <input type="date" id="dataFim" name="dataFim">
 
                 <button type="submit" class="btn-submit">Salvar</button>
             </form>
