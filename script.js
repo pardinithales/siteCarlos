@@ -12,6 +12,7 @@ const csvInput = document.getElementById('csvInput');
 const resetButton = document.getElementById('resetButton'); // Botão de Reset
 const codigoSelect = document.getElementById('codigo'); // Seleção de Código
 const dataFimContainer = document.getElementById('dataFimContainer'); // Container do Data Fim
+const message = document.getElementById('message'); // Mensagem de Verificação
 
 const totalRecords = document.getElementById('totalRecords');
 const uniqueEmployees = document.getElementById('uniqueEmployees');
@@ -29,6 +30,7 @@ let editingIndex = null;
 
 // Inicializar Dados a partir do CSV
 function initializeDataFromCSV(file) {
+    showMessage('Carregando dados...', 'info');
     Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
@@ -41,9 +43,11 @@ function initializeDataFromCSV(file) {
             })).filter(item => item.funcionario && item.dataInicio && item.codigo); // Filtrar registros válidos
             saveData();
             renderTable();
+            showMessage('Dados carregados com sucesso!', 'success');
         },
         error: function(error) {
-            alert('Erro ao carregar o CSV: ' + error.message);
+            console.error('Erro ao carregar o CSV:', error);
+            showMessage('Erro ao carregar o CSV: ' + error.message, 'error');
         }
     });
 }
@@ -54,7 +58,7 @@ csvInput.addEventListener('change', function(event) {
     if (file && file.type === 'text/csv') {
         initializeDataFromCSV(file);
     } else {
-        alert('Por favor, selecione um arquivo CSV válido.');
+        showMessage('Por favor, selecione um arquivo CSV válido.', 'error');
     }
 });
 
@@ -95,34 +99,21 @@ function renderTable() {
         // Definir o tooltip com base no código
         switch(item.codigo) {
             case 'F':
-                span.style.backgroundColor = '#EDE9FE';
-                span.style.color = '#6B21A8';
                 span.setAttribute('data-tooltip', 'Férias');
                 break;
             case 'M':
-                span.style.backgroundColor = '#DCFCE7';
-                span.style.color = '#059669';
                 span.setAttribute('data-tooltip', 'Marcada');
                 break;
             case 'D':
-                span.style.backgroundColor = '#FEF3C7';
-                span.style.color = '#D97706';
                 span.setAttribute('data-tooltip', 'Aguarda aprovação do DP');
                 break;
             case 'ME':
-                span.style.backgroundColor = '#FFE2E2'; // Rosa Claro
-                span.style.color = '#B91C1C'; // Vermelho Escuro
                 span.setAttribute('data-tooltip', 'Médico');
                 break;
             default:
-                span.style.backgroundColor = '#E5E7EB';
-                span.style.color = '#4B5563';
                 span.setAttribute('data-tooltip', 'Código Desconhecido');
         }
 
-        span.style.padding = '5px 10px';
-        span.style.borderRadius = '20px';
-        span.style.fontSize = '0.8em';
         tdCodigo.appendChild(span);
         tr.appendChild(tdCodigo);
 
@@ -156,8 +147,10 @@ function renderTable() {
 function getMonthFromDate(dateStr) {
     if (!dateStr) return '';
     const date = new Date(dateStr);
-    const options = { month: 'short', year: '2-digit' };
-    return date.toLocaleDateString('pt-BR', options).toLowerCase();
+    if (isNaN(date)) return '';
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Meses começam em 0
+    const year = String(date.getFullYear()).slice(-2);
+    return `${month}/${year}`;
 }
 
 // Função para formatar a data para DD/MM/AAAA
@@ -253,13 +246,13 @@ recordForm.addEventListener('submit', (e) => {
     const dataFim = document.getElementById('dataFim').value;
 
     if (!funcionario || !codigo || !dataInicio || (codigo === 'ME' && !dataFim)) {
-        alert('Por favor, preencha todos os campos obrigatórios.');
+        showMessage('Por favor, preencha todos os campos obrigatórios.', 'error');
         return;
     }
 
     // Validação adicional: dataFim deve ser maior ou igual a dataInicio
     if (codigo === 'ME' && dataFim && new Date(dataFim) < new Date(dataInicio)) {
-        alert('A Data Fim deve ser maior ou igual à Data Início.');
+        showMessage('A Data Fim deve ser maior ou igual à Data Início.', 'error');
         return;
     }
 
@@ -274,6 +267,7 @@ recordForm.addEventListener('submit', (e) => {
     saveData();
     renderTable();
     modal.style.display = 'none';
+    showMessage('Registro salvo com sucesso!', 'success');
 });
 
 // Abrir Modal para Edição
@@ -306,6 +300,7 @@ function deleteRecord(index) {
         data.splice(index, 1);
         saveData();
         renderTable();
+        showMessage('Registro excluído com sucesso!', 'success');
     }
 }
 
@@ -392,6 +387,7 @@ function updateCharts() {
 
 // Função para Carregar o CSV Automaticamente
 function loadCSVAutomatically() {
+    showMessage('Carregando dados do CSV...', 'info');
     fetch('data.csv')
         .then(response => {
             if (!response.ok) {
@@ -412,21 +408,23 @@ function loadCSVAutomatically() {
                     })).filter(item => item.funcionario && item.dataInicio && item.codigo); // Filtrar registros válidos
                     saveData();
                     renderTable();
+                    showMessage('Dados carregados com sucesso!', 'success');
                 },
                 error: function(error) {
-                    alert('Erro ao analisar o CSV: ' + error.message);
+                    console.error('Erro ao analisar o CSV:', error);
+                    showMessage('Erro ao analisar o CSV: ' + error.message, 'error');
                 }
             });
         })
         .catch(error => {
             console.error('Erro ao buscar o CSV:', error);
-            alert('Erro ao carregar o arquivo CSV. Verifique o console para mais detalhes.');
+            showMessage('Erro ao carregar o arquivo CSV. Verifique o console para mais detalhes.', 'error');
         });
 }
 
 // Função para formatar a data do CSV para YYYY-MM-DD (formato utilizado pelo input type="date")
 function formatCSVDate(dateStr) {
-    // Supondo que a data no CSV esteja no formato DD/MM/AAAA ou DD/MM/AA
+    // Supondo que a data no CSV esteja no formato DD/MM/AAAA
     const parts = dateStr.split('/');
     if (parts.length !== 3) return '';
     let [day, month, year] = parts;
@@ -444,6 +442,24 @@ resetButton.addEventListener('click', () => {
     }
 });
 
+// Função para Mostrar Mensagens de Verificação
+function showMessage(text, type) {
+    message.textContent = text;
+    message.className = 'message'; // Resetar classes
+    if (type === 'success') {
+        message.classList.add('success');
+    } else if (type === 'error') {
+        message.classList.add('error');
+    } else if (type === 'info') {
+        message.classList.add('info');
+    }
+    message.style.display = 'block';
+    // Ocultar a mensagem após 5 segundos
+    setTimeout(() => {
+        message.style.display = 'none';
+    }, 5000);
+}
+
 // Inicializar Aplicação
 function init() {
     // Tentar carregar dados do localStorage
@@ -451,6 +467,7 @@ function init() {
     if (storedData) {
         data = JSON.parse(storedData);
         renderTable();
+        showMessage('Dados carregados do armazenamento local.', 'success');
     } else {
         // Carregar dados do arquivo CSV automaticamente
         loadCSVAutomatically();
