@@ -107,41 +107,6 @@ function periodsOverlap(startA, endA, startB, endB) {
 }
 
 /**
- * Verifica se há sobreposição de férias para o mesmo funcionário, excluindo um registro específico (opcional)
- * @param {string} funcionario - Nome do funcionário
- * @param {string} dataInicio - Data de início das férias (YYYY-MM-DD)
- * @param {string} dataFim - Data de fim das férias (YYYY-MM-DD)
- * @param {number|null} excludeIndex - Índice do registro a ser excluído da verificação (para edições)
- * @returns {boolean} True se houver sobreposição, caso contrário false
- */
-function hasOverlap(funcionario, dataInicio, dataFim, excludeIndex = null) {
-    // Converter as datas para objetos Date
-    const newStart = new Date(dataInicio);
-    const newEnd = new Date(dataFim);
-    
-    // Iterar sobre todos os registros
-    for (let i = 0; i < data.length; i++) {
-        // Excluir o registro atual em caso de edição
-        if (excludeIndex !== null && i === excludeIndex) continue;
-        
-        const record = data[i];
-        
-        // Verificar apenas para o mesmo funcionário e se possui Data Fim
-        if (record.funcionario === funcionario && record.dataFim) {
-            const existingStart = new Date(record.dataInicio);
-            const existingEnd = new Date(record.dataFim);
-            
-            // Verificar se há sobreposição
-            if ((newStart <= existingEnd) && (newEnd >= existingStart)) {
-                return true;
-            }
-        }
-    }
-    
-    return false;
-}
-
-/**
  * Gera um ID único para cada registro
  * @returns {string} ID único
  */
