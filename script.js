@@ -207,6 +207,12 @@ function getFilteredData() {
     }, []);
 }
 
+// Função para verificar se dois períodos de férias se sobrepõem
+function periodsOverlap(startA, endA, startB, endB) {
+    return (new Date(startA) <= new Date(endB)) && (new Date(endA) >= new Date(startB));
+}
+
+
 // Renderizar Tabela
 function renderTable() {
     tableBody.innerHTML = '';
@@ -216,19 +222,15 @@ function renderTable() {
     // Mapeamento para identificar sobreposições
     const overlapIndices = new Set();
 
-    // Verificar sobreposições entre os registros filtrados
+    // Iterar sobre todos os registros para identificar sobreposições
     for (let i = 0; i < filteredData.length; i++) {
         for (let j = i + 1; j < filteredData.length; j++) {
             const itemA = filteredData[i].item;
             const itemB = filteredData[j].item;
 
+            // Verificar se é o mesmo funcionário e se ambos têm dataFim
             if (itemA.funcionario === itemB.funcionario && itemA.dataFim && itemB.dataFim) {
-                const startA = new Date(itemA.dataInicio);
-                const endA = new Date(itemA.dataFim);
-                const startB = new Date(itemB.dataInicio);
-                const endB = new Date(itemB.dataFim);
-
-                if ((startA <= endB) && (endA >= startB)) {
+                if (periodsOverlap(itemA.dataInicio, itemA.dataFim, itemB.dataInicio, itemB.dataFim)) {
                     overlapIndices.add(filteredData[i].index);
                     overlapIndices.add(filteredData[j].index);
                 }
@@ -236,6 +238,7 @@ function renderTable() {
         }
     }
 
+    // Renderizar cada registro na tabela
     filteredData.forEach(({ item, index }) => {
         const tr = document.createElement('tr');
 
@@ -320,16 +323,6 @@ function renderTable() {
 
     updateStats();
     updateCharts();
-}
-
-// Função para obter o mês a partir de uma data no formato YYYY-MM-DD
-function getMonthFromDate(dateStr) {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    if (isNaN(date)) return '';
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Meses começam em 0
-    const year = String(date.getFullYear()).slice(-2);
-    return `${month}/${year}`;
 }
 
 // Função para formatar a data para DD/MM/AAAA
