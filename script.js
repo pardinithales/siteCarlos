@@ -9,6 +9,7 @@ const monthFilter = document.getElementById('monthFilter');
 const codeFilter = document.getElementById('codeFilter');
 const modalTitle = document.getElementById('modalTitle');
 const csvInput = document.getElementById('csvInput');
+const resetButton = document.getElementById('resetButton'); // Botão de Reset
 
 const totalRecords = document.getElementById('totalRecords');
 const uniqueEmployees = document.getElementById('uniqueEmployees');
@@ -31,10 +32,10 @@ function initializeDataFromCSV(file) {
         skipEmptyLines: true,
         complete: function(results) {
             data = results.data.map(item => ({
-                funcionario: item.funcionario.trim(),
-                mes: item.mes.trim(),
-                codigo: item.codigo.trim().toUpperCase()
-            }));
+                funcionario: item.Funcionário.trim(),
+                mes: item.Data ? item.Data.trim() : '',
+                codigo: item.Código ? item.Código.trim().toUpperCase() : ''
+            })).filter(item => item.funcionario && item.mes && item.codigo); // Filtrar registros válidos
             saveData();
             renderTable();
         },
@@ -72,31 +73,42 @@ function renderTable() {
         tr.appendChild(tdFuncionario);
 
         const tdMes = document.createElement('td');
-        tdMes.textContent = item.mes;
+        tdMes.textContent = item.mes || 'N/A'; // Exibir 'N/A' se a data estiver vazia
         tr.appendChild(tdMes);
 
         const tdCodigo = document.createElement('td');
         const span = document.createElement('span');
         span.classList.add('codigo-badge');
-        span.textContent = item.codigo;
-        // Adicionar estilo baseado no código
+        span.textContent = item.codigo || 'N/A'; // Exibir 'N/A' se o código estiver vazio
+
+        // Definir o tooltip com base no código
         switch(item.codigo) {
             case 'F':
                 span.style.backgroundColor = '#EDE9FE';
                 span.style.color = '#6B21A8';
+                span.setAttribute('data-tooltip', 'Férias');
                 break;
             case 'M':
                 span.style.backgroundColor = '#DCFCE7';
                 span.style.color = '#059669';
+                span.setAttribute('data-tooltip', 'Marcada');
                 break;
             case 'D':
                 span.style.backgroundColor = '#FEF3C7';
                 span.style.color = '#D97706';
+                span.setAttribute('data-tooltip', 'Aguarda aprovação do DP');
+                break;
+            case 'ME':
+                span.style.backgroundColor = '#FFE2E2'; // Rosa Claro
+                span.style.color = '#B91C1C'; // Vermelho Escuro
+                span.setAttribute('data-tooltip', 'Médico');
                 break;
             default:
                 span.style.backgroundColor = '#E5E7EB';
                 span.style.color = '#4B5563';
+                span.setAttribute('data-tooltip', 'Código Desconhecido');
         }
+
         span.style.padding = '5px 10px';
         span.style.borderRadius = '20px';
         span.style.fontSize = '0.8em';
@@ -322,10 +334,10 @@ function loadCSVAutomatically() {
                 skipEmptyLines: true,
                 complete: function(results) {
                     data = results.data.map(item => ({
-                        funcionario: item.funcionario.trim(),
-                        mes: item.mes.trim(),
-                        codigo: item.codigo.trim().toUpperCase()
-                    }));
+                        funcionario: item.Funcionário.trim(),
+                        mes: item.Data ? item.Data.trim() : '',
+                        codigo: item.Código ? item.Código.trim().toUpperCase() : ''
+                    })).filter(item => item.funcionario && item.mes && item.codigo); // Filtrar registros válidos
                     saveData();
                     renderTable();
                 },
@@ -339,6 +351,14 @@ function loadCSVAutomatically() {
             alert('Erro ao carregar o arquivo CSV. Verifique o console para mais detalhes.');
         });
 }
+
+// Botão de Reset (opcional)
+resetButton.addEventListener('click', () => {
+    if (confirm('Isso limpará todos os dados e recarregará o CSV original. Deseja continuar?')) {
+        localStorage.removeItem('dashboardData');
+        loadCSVAutomatically();
+    }
+});
 
 // Inicializar Aplicação
 function init() {
